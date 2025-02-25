@@ -1,6 +1,7 @@
-import sys
 import hid
 from time import sleep
+import psutil
+from psutil._common import bytes2human
 
 vendor_id       = 0x7368
 product_id      = 0x4f1b
@@ -8,8 +9,8 @@ product_id      = 0x4f1b
 usage_page      = 0xff60
 usage           = 0x61
 report_length   = 32
-num_chars = 18
-num_lines = 4
+num_chars       = 18
+num_lines       = 4
 
 class HID_Screen():
     def __init__(self, vendor_id, product_id, usage_page, usage):
@@ -42,12 +43,26 @@ class HID_Screen():
             print(request_report)
         self.screen_buffer = [" "] * num_lines
         interface.close()
-        
+
+def cpu_line():
+    cpu = str(round(psutil.cpu_percent(), 1))
+    cpu_string = f"{'CPU':<9}{cpu:>9}" 
+    return cpu_string        
+
+def ram_line():
+    ram = bytes2human(psutil.virtual_memory().total - psutil.virtual_memory().available)
+    ram_string = f"{'RAM':<9}{ram:>9}"
+    return ram_string
+
 def main():
-    screen = HID_Screen(vendor_id, product_id, usage_page, usage)
-    screen.add_to_buffer(0, "Test line 1")
-    screen.add_to_buffer(2, "Test line 2")
-    screen.send_screen() 
+    while True:
+        screen = HID_Screen(vendor_id, product_id, usage_page, usage)
+        screen.add_to_buffer(0, cpu_line())
+        screen.add_to_buffer(1, ram_line())
+        screen.add_to_buffer(2, "third test line")
+        screen.add_to_buffer(3, "fourth test line")
+        screen.send_screen() 
+        sleep(5)
 
 if __name__ == "__main__":
     main()
