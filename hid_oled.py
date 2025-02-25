@@ -44,4 +44,11 @@ def send_raw_report(data):
         interface.close()
 
 if __name__ == '__main__':
-    send_raw_report(list(bytes(input(), "utf-8")))
+    send_raw_report(list(bytes("reload test initiate", "utf-8")))
+    send_raw_report(list(bytes("reload test initiate", "utf-8")))
+    send_raw_report(list(bytes("reload test initiate", "utf-8")))
+    send_raw_report(list(bytes("reload test initiate", "utf-8")))
+    send_raw_report(list(bytes("reload test initiate", "utf-8")))
+    send_raw_report(list(bytes("reload test initiate", "utf-8")))
+    send_raw_report(list(bytes("reload test initiate", "utf-8")))
+    send_raw_report(list(bytes("reload test initiate", "utf-8")))
