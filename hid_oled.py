@@ -2,6 +2,7 @@ import hid
 from time import sleep
 import psutil
 from psutil._common import bytes2human
+from datetime import datetime
 
 vendor_id       = 0x7368
 product_id      = 0x4f1b
@@ -79,7 +80,7 @@ def main():
             if screen.connected:
                 screen.add_to_buffer(0, cpu_line())
                 screen.add_to_buffer(1, ram_line())
-                screen.add_to_buffer(2, "third test line")
+                screen.add_to_buffer(2, datetime.now().strftime("%M:%S"))
                 screen.add_to_buffer(3, "fourth test line")
                 screen.add_to_buffer(4, "fifth test line")
                 screen.add_to_buffer(5, "sixth test line")
