@@ -49,6 +49,8 @@ class HID_Screen():
                 request_data[1:len(linebytes)] = linebytes
                 if idx == 0:
                     request_data[0] = 0x01
+                else:
+                    request_data[0] = 0x02
                 request_report = bytes(request_data)
                 self.screen_buffer = [" "] * num_lines
                 try:
