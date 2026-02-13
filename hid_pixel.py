@@ -21,11 +21,6 @@ from urllib.parse import urlparse, unquote
 from urllib.request import urlopen
 from io import BytesIO
 
-try:
-    import pydbus
-    _session_bus = pydbus.SessionBus()
-except Exception:
-    _session_bus = None
 
 try:
     import numpy as np
@@ -466,24 +461,28 @@ def _format_time(microseconds):
 
 
 def _get_spotify_info():
-    if _session_bus is None:
-        return None
     try:
-        player = _session_bus.get(
-            "org.mpris.MediaPlayer2.spotify",
-            "/org/mpris/MediaPlayer2"
+        result = subprocess.run(
+            ['playerctl', '-p', 'spotify', 'metadata', '--format',
+             '{{status}}|{{title}}|{{artist}}|{{mpris:length}}|{{position}}|{{mpris:artUrl}}'],
+            capture_output=True, text=True, timeout=2
         )
-        metadata = player.Metadata
-        position = player.Position
-        length = metadata.get('mpris:length', 0)
+        if result.returncode != 0 or not result.stdout.strip():
+            return None
+        parts = result.stdout.strip().split('|', 5)
+        if len(parts) < 6:
+            return None
+        status, title, artist, length, position, art_url = parts
+        length = int(length) if length else 0
+        position = int(position) if position else 0
         return {
-            'status': str(player.PlaybackStatus),
-            'title': str(metadata.get('xesam:title', 'Unknown')).upper(),
-            'artist': str(metadata.get('xesam:artist', ['Unknown'])[0]).upper(),
+            'status': status,
+            'title': title.upper(),
+            'artist': artist.upper(),
             'position': position,
             'length': length,
             'progress': (position / length * 100) if length > 0 else 0,
-            'art_url': str(metadata.get('mpris:artUrl', '')),
+            'art_url': art_url,
         }
     except Exception:
         return None
@@ -607,7 +606,7 @@ def main():
     error_printed = False
     init_printed = False
 
-    font_path = "fonts/route159_110/Route159-Light.otf"
+    font_path = "/home/shurjo/projects/hid_oled/fonts/route159_110/Route159-Light.otf"
     font_size = 11
     font = ImageFont.truetype(font_path, font_size)
 
