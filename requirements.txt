@@ -3,3 +3,5 @@ hid==1.0.7
 psutil==7.0.0
 pydbus==0.6.0
 pyhidapi==0.0.2
+numpy==2.4.2
+sounddevice==0.5.5

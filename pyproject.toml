@@ -1,0 +1,15 @@
+[project]
+name = "hid-oled"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "gputil-fix==1.4.1.2",
+    "hid==1.0.7",
+    "numpy==2.4.2",
+    "psutil==7.0.0",
+    "pydbus==0.6.0",
+    "pyhidapi==0.0.2",
+    "sounddevice==0.5.5",
+]

@@ -1,7 +1,9 @@
+import re
 import hid
 import GPUtil
-import dbus 
+import pydbus as dbus
 import psutil
+import cyrtranslit
 from time import sleep, time
 from math import ceil
 from psutil._common import bytes2human
@@ -85,6 +87,9 @@ class HID_Screen():
         if self.connected:
             self.interface.close()
 
+def has_cyrillic(text):
+    return bool(re.search('[а-яА-Я]', text))
+
 def align_strings(name, value):
     return f"{name:<9}{value:>9}"
 
@@ -139,14 +144,16 @@ def disk_rates():
 def spotify_infostrings(spotify_properties):
     if spotify_properties:
         info = dict()
-        metadata = spotify_properties.Get("org.mpris.MediaPlayer2.Player", "Metadata")
-        info['status'] = str(spotify_properties.Get("org.mpris.MediaPlayer2.Player", "PlaybackStatus")) + ":"
-        info['position'] = timestring(spotify_properties.Get("org.mpris.MediaPlayer2.Player", "Position"))
+        metadata = spotify_properties.Metadata
+        info['status'] = ' ' + str(spotify_properties.PlaybackStatus) + ":"
+        info['position'] = timestring(spotify_properties.Position)
         info['length'] = timestring(metadata['mpris:length'])
         info['title'] = str(metadata['xesam:title'])
         info['album'] = str(metadata['xesam:album'])
         info['artist'] = str(metadata['xesam:artist'][0])
         info['progress'] = info['position'] + '/' + info['length']
+        if has_cyrillic(info['title']):
+            info['title'] = cyrtranslit.to_latin(info['title'], 'ru')
         for k, v in info.items():
             info[k] = v.upper()
         return info
@@ -197,10 +204,8 @@ def main():
                     init_printed = True
 
                 try:
-                    spotify_bus = session_bus.get_object("org.mpris.MediaPlayer2.spotify", "/org/mpris/MediaPlayer2")
-                    spotify_properties = dbus.Interface(spotify_bus, "org.freedesktop.DBus.Properties")
+                    spotify_properties = session_bus.get("org.mpris.MediaPlayer2.spotify", "/org/mpris/MediaPlayer2")
                 except: 
-                    spotify_bus = None 
                     spotify_properties = None
 
                 page_1 = coreinfo()

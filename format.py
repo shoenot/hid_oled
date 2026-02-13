@@ -30,6 +30,3 @@ def format(value, percent=False):
             return spaces * ' ' + fmt_string
         else:
             return fmt_string
-
-if __name__ == "__main__":
-    print(format(23.7189901, True))
